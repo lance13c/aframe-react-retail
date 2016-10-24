@@ -1,18 +1,39 @@
-var path = require('path');
-var webpack = require('webpack');
+const path = require('path');
+const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 require('babel-polyfill');
 
-var IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-var ENTRY_POINTS = [
+const ENTRY_POINTS = [
   './src/js/app'
 ];
 
-var JS_LOADERS = [
+const JS_LOADERS = [
   'babel?cacheDirectory&presets[]=react,presets[]=es2015,presets[]=stage-0'
 ];
 
-var PLUGINS = [];
+const PLUGINS = [
+  new CopyWebpackPlugin([
+    
+    // Copy directory contents to {output}/to/directory/
+    { from: 'assets', to: 'assets' },
+    
+  ], {
+    ignore: [],
+    
+    // By default, we only copy modified files during
+    // a watch or webpack-dev-server build. Setting this
+    // to `true` copies all files.
+    copyUnmodified: true
+  })
+];
+
+const PATHS = {
+  images: './assets/images/'
+};
+
+
 if (IS_PRODUCTION) {
   // Uglify in production.
   PLUGINS.push(
@@ -52,6 +73,11 @@ module.exports = {
       {
         test: /\.json$/,
         loader: 'json-loader'
+      },
+      {
+        test: /\.(jpg|png)$/,
+        loader: 'file?name=[path][name].[hash].[ext]',
+        include: PATHS.images
       }
     ],
   },
